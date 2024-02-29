@@ -40,11 +40,24 @@ function App() {
     setPatientIdToDelete(patientId);
     setShowDeleteModal(true);
   };  
+
   const handleConfirmDelete = () => {
-    // Logique pour envoyer la requête DELETE au serveur FHIR
-    console.log("Suppression du patient avec l'ID :", patientIdToDelete);
-    setShowDeleteModal(false);
-  };
+  fetch(`https://hapi.fhir.org/baseR5/Patient/${patientIdToDelete}`, {
+    method: 'DELETE',
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log("Patient supprimé avec succès");
+      // Actualisez ici la liste des patients pour refléter la suppression
+      // Par exemple, en rechargeant les données ou en filtrant l'état des patients
+      setPatients(patients.filter(patient => patient.id !== patientIdToDelete));
+    } else {
+      console.error("Erreur lors de la suppression du patient");
+    }
+  })
+  .catch(error => console.error('Erreur:', error))
+  .finally(() => setShowDeleteModal(false)); // Fermez la fenêtre modale indépendamment du résultat
+};
   const handleSubmit = (event) => {
   event.preventDefault();
   const patientData = {
