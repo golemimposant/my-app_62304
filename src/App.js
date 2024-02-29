@@ -37,7 +37,7 @@ function App() {
     event.preventDefault();
     const patientData = {
       resourceType: "Patient",
-      name: [{ family: lastName, given: [firstName] }],
+      name: [{ use: "official", family: lastName, given: [firstName] }],
       gender: gender,
       birthDate: birthDate,
     };
@@ -59,13 +59,7 @@ function App() {
       console.error('Error:', error);
     });
   };
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [patientIdToDelete, setPatientIdToDelete] = useState(null);
-
-	const handleDeleteClick = (patientId) => {
-	  setPatientIdToDelete(patientId);
-	  setShowDeleteModal(true);
-	};
+	
 
   return (
     <div className="container">
