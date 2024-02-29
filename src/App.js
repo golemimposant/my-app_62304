@@ -34,8 +34,8 @@ function App() {
 	}, []);
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    const patientData = {
+  event.preventDefault();
+  const patientData = {
       resourceType: "Patient",
       name: [{ use: "official", family: lastName, given: [firstName] }],
       gender: gender,
@@ -59,10 +59,11 @@ function App() {
       console.error('Error:', error);
     });
   };
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [patientIdToDelete, setPatientIdToDelete] = useState(null);
+  
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [patientIdToDelete, setPatientIdToDelete] = useState(null);
 
-	const handleDeleteClick = (patientId) => {
+  const handleDeleteClick = (patientId) => {
 	  setPatientIdToDelete(patientId);
 	  setShowDeleteModal(true);
 	};
