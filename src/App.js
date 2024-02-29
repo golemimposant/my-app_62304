@@ -59,7 +59,13 @@ function App() {
       console.error('Error:', error);
     });
   };
-	
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [patientIdToDelete, setPatientIdToDelete] = useState(null);
+
+	const handleDeleteClick = (patientId) => {
+	  setPatientIdToDelete(patientId);
+	  setShowDeleteModal(true);
+	};
 
   return (
     <div className="container">
