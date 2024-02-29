@@ -32,7 +32,19 @@ function App() {
 		})
 		.catch(error => console.error('Error fetching patients:', error));
 	}, []);
+	
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [patientIdToDelete, setPatientIdToDelete] = useState(null);
 
+  const handleDeleteClick = (patientId) => {
+    setPatientIdToDelete(patientId);
+    setShowDeleteModal(true);
+  };  
+  const handleConfirmDelete = () => {
+    // Logique pour envoyer la requête DELETE au serveur FHIR
+    console.log("Suppression du patient avec l'ID :", patientIdToDelete);
+    setShowDeleteModal(false);
+  };
   const handleSubmit = (event) => {
   event.preventDefault();
   const patientData = {
@@ -60,14 +72,6 @@ function App() {
     });
   };
   
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [patientIdToDelete, setPatientIdToDelete] = useState(null);
-
-  const handleDeleteClick = (patientId) => {
-	  setPatientIdToDelete(patientId);
-	  setShowDeleteModal(true);
-	};
-
   return (
     <div className="container">
       <h1>Patients</h1>
@@ -125,6 +129,17 @@ function App() {
             <Button variant="primary" type="submit">Enregistrer</Button>
           </Form>
         </Modal.Body>
+      </Modal>
+	  
+	  <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation de suppression</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Êtes-vous sûr de vouloir supprimer ce patient ?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Annuler</Button>
+          <Button variant="danger" onClick={handleConfirmDelete}>Supprimer</Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
