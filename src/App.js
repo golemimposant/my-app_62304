@@ -42,22 +42,20 @@ function App() {
   };  
 
   const handleConfirmDelete = () => {
-  fetch(`https://hapi.fhir.org/baseR5/Patient/${patientIdToDelete}`, {
-    method: 'DELETE',
-  })
-  .then(response => {
-    if (response.ok) {
-      console.log("Patient supprimé avec succès");
-      // Actualisez ici la liste des patients pour refléter la suppression
-      // Par exemple, en rechargeant les données ou en filtrant l'état des patients
-      setPatients(patients.filter(patient => patient.id !== patientIdToDelete));
-    } else {
-      console.error("Erreur lors de la suppression du patient");
-    }
-  })
-  .catch(error => console.error('Erreur:', error))
-  .finally(() => setShowDeleteModal(false)); // Fermez la fenêtre modale indépendamment du résultat
-};
+	  fetch(`https://hapi.fhir.org/baseR5/Patient/${patientIdToDelete}?_cascade=delete`, {
+		method: 'DELETE',
+	  })
+	  .then(response => {
+		if (response.ok) {
+		  console.log("Patient supprimé avec succès");
+		  setPatients(patients.filter(patient => patient.id !== patientIdToDelete));
+		} else {
+		  console.error("Erreur lors de la suppression du patient");
+		}
+	  })
+	  .catch(error => console.error('Erreur:', error))
+	  .finally(() => setShowDeleteModal(false)); // Fermez la modale après la suppression
+  };
   const handleSubmit = (event) => {
   event.preventDefault();
   const patientData = {
@@ -96,7 +94,7 @@ function App() {
 			  <th>Name</th>
 			  <th>Gender</th>
 			  <th>Birth Date</th>
-			  <th>Actions</th> {/* Ajout d'une colonne pour les actions */}
+			  <th>Actions</th>
 			</tr>
 		  </thead>
 		  <tbody>
@@ -107,7 +105,6 @@ function App() {
 				<td>{patient.gender}</td>
 				<td>{patient.birthDate}</td>
 				<td>
-				  {/* Icône poubelle pour supprimer un patient */}
 				  <FontAwesomeIcon icon={faTrashCan} onClick={() => handleDeleteClick(patient.id)} />
 				</td>
 			  </tr>
