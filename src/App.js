@@ -1,5 +1,6 @@
 // J'ai laissé l'import du css car il aurait servi si le projet avait continué.
-//
+// Pour le reste, il y a des import Bootstrap pour les design de boutons/form/fenêtre modale etc.
+// font-awesome pour les icônes et tout simplement react pour les useState et useEffect.
 
 import './App.css';
 import React, { useEffect, useState } from 'react';
@@ -25,7 +26,7 @@ function App() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [patientToUpdate, setPatientToUpdate] = useState(null);
 
-
+//La partie useEffect sert à l'organisation de l'exécution des fonctions ==> 'https://react.dev/reference/react/useEffect'
 
   useEffect(() => {
     fetch(currentPageUrl)
@@ -33,7 +34,8 @@ function App() {
       .then(data => {
         const fetchedPatients = data.entry?.map(entry => ({
           id: entry.resource.id,
-          name: `${entry.resource.name && entry.resource.name[0].given && entry.resource.name[0].given.length > 0 ? entry.resource.name[0].given.join(' ') : 'Unknown'} ${entry.resource.name && entry.resource.name[0].family ? entry.resource.name[0].family : 'Name'}`,
+          //Les vérifications 
+		  name: `${entry.resource.name && entry.resource.name[0].given && entry.resource.name[0].given.length > 0 ? entry.resource.name[0].given.join(' ') : 'Unknown'} ${entry.resource.name && entry.resource.name[0].family ? entry.resource.name[0].family : 'Name'}`,
           gender: entry.resource.gender,
           birthDate: entry.resource.birthDate,
         })) || [];
@@ -126,7 +128,8 @@ function App() {
 
 		console.log('Patient updated successfully');
 		setShowUpdateModal(false); // Fermer la fenêtre modale de mise à jour
-		// Optionnel: Actualiser la liste des patients
+		
+		// Par contre cette partie j'étais un peu short en temps (étonnant), il faut faire f5 pour voir le résultat ^^
 	  } catch (error) {
 		console.error('Error:', error);
 	  }
