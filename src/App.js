@@ -13,26 +13,63 @@ function App() {
   const [lastName, setLastName] = useState('');
   const [gender, setGender] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const [currentPageUrl, setCurrentPageUrl] = useState('https://hapi.fhir.org/baseR5/Patient?_count=10');
+  const [nextPageUrl, setNextPageUrl] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredPatients, setFilteredPatients] = useState([]);
 
-  useEffect(() => {
-	  fetch('https://hapi.fhir.org/baseR5/Patient')
+
+
+	useEffect(() => {
+		const url = searchTerm 
+		  ? `https://hapi.fhir.org/baseR5/Patient?_count=10&name=${encodeURIComponent(searchTerm)}`
+		  : currentPageUrl;
+
+		fetch(url)
+		  .then(response => response.json())
+		  .then(data => {
+			const fetchedPatients = data.entry.map(entry => ({
+			  id: entry.resource.id,
+			  name: `${entry.resource.name && entry.resource.name[0].given && entry.resource.name[0].given.length > 0 ? entry.resource.name[0].given.join(' ') : 'Unknown'} ${entry.resource.name && entry.resource.name[0].family ? entry.resource.name[0].family : 'Name'}`,
+			  gender: entry.resource.gender,
+			  birthDate: entry.resource.birthDate,
+			}));
+			setPatients(fetchedPatients);
+		  })
+		  .catch(error => console.error('Error fetching patients:', error));
+	}, [searchTerm, currentPageUrl]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+  
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    // La recherche est déjà déclenchée par l'effet lié à searchTerm.
+  };
+	
+  const handleNextPage = () => {
+    setCurrentPageUrl(nextPageUrl);
+  };
+  
+	const handleSearch = (event) => {
+	  event.preventDefault(); // Empêche le rechargement de la page
+	  const searchURL = `https://hapi.fhir.org/baseR5/Patient?_count=10&name=${encodeURIComponent(searchTerm)}`;
+
+	  fetch(searchURL)
 		.then(response => response.json())
 		.then(data => {
-		  const fetchedPatients = data.entry.map(entry => {
-			const givenName = entry.resource.name && entry.resource.name[0].given && entry.resource.name[0].given.length > 0 ? entry.resource.name[0].given.join(' ') : 'Unknown';
-			const familyName = entry.resource.name && entry.resource.name[0].family ? entry.resource.name[0].family : 'Name';
-			return {
-			  id: entry.resource.id,
-			  name: `${givenName} ${familyName}`,
-			  gender: entry.resource.gender,
-			  birthDate: entry.resource.birthDate
-			};
-		  });
-		  setPatients(fetchedPatients);
+		  const fetchedPatients = data.entry.map(entry => ({
+			id: entry.resource.id,
+			name: `${entry.resource.name[0].given.join(' ')} ${entry.resource.name[0].family}`,
+			gender: entry.resource.gender,
+			birthDate: entry.resource.birthDate
+		  }));
+		  setPatients(fetchedPatients); // Ou setFilteredPatients si vous maintenez une liste filtrée séparée
 		})
 		.catch(error => console.error('Error fetching patients:', error));
-	}, []);
-	
+	};
+  
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [patientIdToDelete, setPatientIdToDelete] = useState(null);
 
@@ -86,8 +123,16 @@ function App() {
   return (
     <div className="container">
       <h1>Patients</h1>
-      <Button variant="primary" onClick={() => setShowModal(true)}>Ajouter un patient</Button>
-      <Table striped bordered hover>
+      <Form inline onSubmit={handleSearchSubmit}>
+        <input
+          className="mb-2 mr-sm-2"
+          type="text"
+          placeholder="Rechercher..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+      </Form>
+	  <Table striped bordered hover>
 		  <thead>
 			<tr>
 			  <th>ID</th>
@@ -111,6 +156,9 @@ function App() {
 			))}
 		  </tbody>
 	  </Table>
+	  
+      <Button variant="primary" onClick={handleNextPage} disabled={!nextPageUrl}>Suivant</Button>
+	  <Button variant="primary" onClick={() => setShowModal(true)}>Ajouter un patient</Button>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
@@ -140,6 +188,7 @@ function App() {
           </Form>
         </Modal.Body>
       </Modal>
+	
 	  
 	  <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
