@@ -1,4 +1,6 @@
-import logo from './logo.svg';
+// J'ai laissé l'import du css car il aurait servi si le projet avait continué.
+//
+
 import './App.css';
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Table } from 'react-bootstrap';
@@ -7,6 +9,9 @@ import { faTrashCan, faSearch, faPencil } from '@fortawesome/free-solid-svg-icon
 
 
 function App() {
+	
+  // définition des constantes avec des useState ==> 'https://react.dev/reference/react/useState'
+  
   const [patients, setPatients] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [firstName, setFirstName] = useState('');
