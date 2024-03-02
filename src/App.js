@@ -12,7 +12,7 @@ import { faTrashCan, faSearch, faPencil } from '@fortawesome/free-solid-svg-icon
 function App() {
 	
   // définition des constantes avec des useState ==> 'https://react.dev/reference/react/useState'
-  
+	
   const [patients, setPatients] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [firstName, setFirstName] = useState('');
@@ -34,38 +34,41 @@ function App() {
       .then(data => {
         const fetchedPatients = data.entry?.map(entry => ({
           id: entry.resource.id,
-          //Les vérifications 
+          // L'acquisition de name demande une vérification des valeurs nulles et la fusion des différents éléments qui peuvent exister dans name.
 		  name: `${entry.resource.name && entry.resource.name[0].given && entry.resource.name[0].given.length > 0 ? entry.resource.name[0].given.join(' ') : 'Unknown'} ${entry.resource.name && entry.resource.name[0].family ? entry.resource.name[0].family : 'Name'}`,
           gender: entry.resource.gender,
           birthDate: entry.resource.birthDate,
         })) || [];
         setPatients(fetchedPatients);
-        // Update nextPageUrl based on the link relation
+        // La fonction next est vraiment bizarre, mais elle permet la génération d'éléments qui suivent ceux-là dans la liste.
         const nextLink = data.link.find(link => link.relation === "next");
         setNextPageUrl(nextLink ? nextLink.url : '');
       })
+	  
+	  //gestion d'erreur de récupération
       .catch(error => console.error('Error fetching patients:', error));
   }, [currentPageUrl]);
 	
+	//constante pour le passage à la page suivante
   const handleNextPage = () => {
     setCurrentPageUrl(nextPageUrl);
   };
 
+	// clic pour enclencher la récupération du contenu de la barre de recherche pour effectuer des filtres (uniquement sur le nom/prénom)
   const handleSearchClick = () => {
     const url = `https://hapi.fhir.org/baseR5/Patient?_count=10&name=${encodeURIComponent(searchTerm)}`;
     setCurrentPageUrl(url);
   };
   
+	//gestion de la recherche
   const handleSearch = () => {
 	const searchURL = `https://hapi.fhir.org/baseR5/Patient?_count=10&name=${encodeURIComponent(searchTerm)}`;
 	fetch(searchURL)
 	  .then(response => response.json())
-	  .then(data => {
-		// Processing data logic here
-	  })
 	  .catch(error => console.error('Error fetching patients:', error));
   };
   
+  //constantes spécifiques à l'action delete et à la fenêtre modale correspondante, ainsi que la constante de gestion du clic et celle de la confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [patientIdToDelete, setPatientIdToDelete] = useState(null);
 
@@ -90,6 +93,7 @@ function App() {
 	  .finally(() => setShowDeleteModal(false)); // Fermez la modale après la suppression
   };
   
+  // gestion au clic sur l'icône de modification
   const handleEditClick = (patientId) => {
 		// Trouver les informations du patient par son ID
 		const patient = patients.find(p => p.id === patientId);
@@ -134,6 +138,8 @@ function App() {
 		console.error('Error:', error);
 	  }
 	};
+	
+	//constantes pour la soumission d'une requête d'ajout (POST/create dans le CRUD) grâce à un envoi de JSON
   
   const handleSubmit = (event) => {
   event.preventDefault();
@@ -162,16 +168,22 @@ function App() {
     });
   };
   
+  // la partie suivante représente les balises d'organisation de notre application, avec la barre de recherche, les icones, la table des patients, les boutons en bas
+  // pour l'ajout et la navigation (dans un seul sens haha) dans la liste, et enfin les fenêtres modales (qui s'ouvrent et se ferment de manière conditionnelle)
+  
   return (
     <div className="container">
       <h1>Patients</h1>
-      <input
+      
+	  <input
         type="text"
         placeholder="Rechercher..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
       <FontAwesomeIcon icon={faSearch} onClick={handleSearchClick} />
+	  
+	  
 	  <Table striped bordered hover>
 		  <thead>
 			<tr>
@@ -271,9 +283,9 @@ function App() {
 				  value={gender} 
 				  onChange={(e) => setGender(e.target.value)}
 				>
-				  <option value="male">Homme</option>
-				  <option value="female">Femme</option>
-				  <option value="other">Autre</option>
+				  <option value="male">male</option>
+				  <option value="female">female</option>
+				  <option value="other">unknown</option>
 				</Form.Control>
 			  </Form.Group>
 			  <Form.Group>
@@ -292,5 +304,5 @@ function App() {
     </div>
   );
 }
-
+// oui
 export default App;
