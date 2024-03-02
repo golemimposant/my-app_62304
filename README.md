@@ -6,4 +6,4 @@ Donc voici une jolie image de la technologie principale que j'ai utilisée pour 
 ![Logo de React](https://blog.wildix.com/wp-content/uploads/2020/06/react-logo.jpg)
 Le projet est sous la licence "Rien du tout", et le document important est src/App.js.
 
-Bonne journée :sun:
+Bonne journée :sunny:
